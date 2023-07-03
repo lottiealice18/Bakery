@@ -4,7 +4,7 @@ import datetime
 import base64
 
 def main():
-    names = ['', 'Liam', 'Lyndsay K', 'Kyndsay', 'Abigail', 'Shayla', 'Sarah', 'Lesley', 'Kerry', 'Shop Floor']
+    names = ['', 'Liam', 'Lyndsay K', 'Lyndsay', 'Abigail', 'Shayla', 'Sarah', 'Lesley', 'Kerry', 'Shop Floor']
     baguettes = ['Baguette Cheese', 'Baguette Ham', 'Baguette Tuna']
 
     # Title and instructions
