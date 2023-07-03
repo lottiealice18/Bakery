@@ -1,5 +1,7 @@
 import streamlit as st
 import pandas as pd
+import datetime
+import base64
 
 def main():
     names = ['', 'Liam', 'Lyndsay K', 'Kyndsay', 'Abigail', 'Shayla', 'Sarah', 'Lesley', 'Kerry', 'Shop Floor']
@@ -30,39 +32,28 @@ def main():
         df = pd.DataFrame.from_dict(baguette_quantities, orient='index', columns=['Left from the day before'])
         df['To Make Today'] = [18 - quantity for quantity in baguette_quantities.values()]
         df['Made by'] = selected_name
+        df['Baguette'] = baguettes
+
+        current_date = datetime.date.today()
+        df['Date'] = current_date.strftime("%Y-%m-%d")
+
+        labeled_by = st.selectbox("Who labeled the baguettes?", names[1:])
+        df['Labeled by'] = labeled_by
+
+        df = df[['Date', 'Baguette', 'Left from the day before', 'To Make Today', 'Made by', 'Labeled by']]
 
         st.write("Dataframe:")
         st.write(df)
 
-        # Check if all baguettes were made by the selected user
-        made_all = st.radio(f"Did {selected_name} make all the baguettes?", ('Yes', 'No'), key="made_all")
+        comments = st.text_area("Comments (max 1000 characters)", max_chars=1000)
+        df['Comments'] = comments
 
-        if made_all == 'Yes':
-            # Check who printed and labeled the baguettes
-            printed_by = st.selectbox("Who printed and labeled the baguettes today?", names[1:])
-            df['Printed and Labeled by'] = printed_by
-
-        elif made_all == 'No':
-            st.write("Please update the 'Made by' column for the baguettes:")
-            made_by = selected_name
-            for i, baguette in enumerate(baguettes):
-                made = st.radio(f"{selected_name} made {baguette}?", ('Yes', 'No'), key=f"made_{i}")
-                if made == 'No':
-                    made_by = st.selectbox(f"Who made {baguette}?", names[1:])
-                df.loc[baguette, 'Made by'] = made_by
-
-            st.write("Please update the 'Labeled by' column for the baguettes:")
-            labeled_by = selected_name
-            for i, baguette in enumerate(baguettes):
-                labeled = st.radio(f"Was {baguette} labeled?", ('Yes', 'No'), key=f"labeled_{i}")
-                if labeled == 'No':
-                    labeled_by = st.selectbox(f"Who labeled {baguette}?", names[1:])
-                df.loc[baguette, 'Labeled by'] = labeled_by
-
-        st.write("Updated Dataframe:")
-        st.write(df)
-
-        st.button("Download Today's info as a CSV")
+        # Download button
+        csv = df.to_csv(index=False)
+        b64 = base64.b64encode(csv.encode()).decode()
+        filename = f"Bakery_Log_{selected_name}_{current_date}.csv"
+        href = f"<a href='data:file/csv;base64,{b64}' download='{filename}'>Download Today's info as a CSV</a>"
+        st.markdown(href, unsafe_allow_html=True)
 
 if __name__ == '__main__':
     main()
